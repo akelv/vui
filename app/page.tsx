@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { landing } from "@/components/landing";
+import { assistant } from "@/components/assistant"; 
 export default function Home() {
-  return landing()
+  return assistant()
 }
