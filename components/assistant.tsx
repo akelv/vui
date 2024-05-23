@@ -102,8 +102,9 @@ export function assistant() {
     </div>
   )
 }
+interface IconProps extends React.SVGProps<SVGSVGElement> {}
 
-function CheckIcon(props) {
+function CheckIcon(props: IconProps) {
   return (
     <svg
       {...props}
@@ -121,7 +122,6 @@ function CheckIcon(props) {
     </svg>
   )
 }
-interface IconProps extends React.SVGProps<SVGSVGElement> {}
 
 
 function ClockIcon(props: IconProps) {
