@@ -9,14 +9,15 @@
 import { Inter } from 'next/font/google'
 
 inter({
-  subsets: ['latin'],
-  display: 'swap',
+  subsets: ["latin"],
+  display: "swap",
 })
 
 To read more about using these font, please visit the Next.js documentation:
 - App Directory: https://nextjs.org/docs/app/building-your-application/optimizing/fonts
 - Pages Directory: https://nextjs.org/docs/pages/building-your-application/optimizing/fonts
 **/
+
 import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 
@@ -57,7 +58,7 @@ export function landing() {
                 <AvatarFallback>You</AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm">Hi there, I have a few tasks I'd like to discuss.</p>
+                <p className="text-sm">Hi there, I have a few tasks Id like to discuss.</p>
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   <span>You</span> • <span>Just now</span>
                 </div>
@@ -105,8 +106,9 @@ export function landing() {
     </div>
   )
 }
+interface IconProps extends React.SVGProps<SVGSVGElement> {}
 
-function SettingsIcon(props) {
+function SettingsIcon(props: IconProps) {
   return (
     <svg
       {...props}
@@ -127,7 +129,7 @@ function SettingsIcon(props) {
 }
 
 
-function XIcon(props) {
+function XIcon(props: IconProps) {
   return (
     <svg
       {...props}
