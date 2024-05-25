@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 
 const VideoUploader: React.FC = () => {
@@ -7,6 +7,11 @@ const VideoUploader: React.FC = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPressed, setIsPressed] = useState(false);
+  const [counter, setCounter] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isCounterVisible, setIsCounterVisible] = useState(false);
+
 
   const startRecording = async () => {
     try {
@@ -58,72 +63,78 @@ const VideoUploader: React.FC = () => {
       }
     }
   };
-  const [isPressed, setIsPressed] = useState(false);
 
   const handleMouseDown = () => {
     setIsPressed(true);
     startRecording();
+    setIsCounterVisible(true);
+    intervalRef.current = setInterval(() => {
+      setCounter((prevCounter) => prevCounter + 1);
+    }, 100);
   };
 
   const handleMouseUp = () => {
     setIsPressed(false);
     stopRecording();
+    setIsCounterVisible(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     uploadVideo();
   };
+
+  useEffect(() => {
+    // Cleanup interval on component unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div>
-     <div className="fixed inset-0 bg-black/90 flex items-center justify-center">
-      <div className="relative w-full h-full max-w-[450px] overflow-hidden rounded-xl">
-        <video ref={videoRef} style={{ width: '100%', height: '100%' }} />
-        <span className="w-full h-full object-cover rounded-md bg-muted" />
-        <div className="absolute inset-0 flex items-center justify-center" />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex justify-center">
-          <button
-          className={`${
-            isPressed ? 'bg-red-500' : 'bg-white/20'
-            } backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
-            type="button"
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-          >
-            <CircleIcon className="h-8 w-8" />
-          </button>
+      <div className="fixed inset-0 bg-black/90 flex items-center justify-center">
+       <div className="relative w-full h-full">
+        <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
+          <span className="w-full h-full object-cover rounded-md bg-muted" />
+          <div className="absolute inset-0 flex items-center justify-center" />
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center">
+            <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
+            <button
+              className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
+              type="button"
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+            >
+              <CircleIcon className="h-8 w-8" />
+            </button>
+
+          </div>
         </div>
       </div>
-    </div>       
-      {/* <div>
-        {isRecording ? (
-          <button onClick={stopRecording}>Stop Recording</button>
-        ) : (
-          <button onClick={startRecording}>Start Recording</button>
-        )}
-      </div> */}
-      {/* {videoBlob && (
-        <div>
-          <button onClick={uploadVideo}>Upload Video</button>
-        </div>
-      )} */}
     </div>
   );
 };
+
 export default VideoUploader;
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {}
 function CircleIcon(props: IconProps) {
-    return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="12" cy="12" r="10" />
-      </svg>
-    )
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+    </svg>
+  );
 }
