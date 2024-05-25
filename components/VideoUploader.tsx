@@ -7,22 +7,41 @@ const VideoUploader: React.FC = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [counter, setCounter] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isCounterVisible, setIsCounterVisible] = useState(false);
 
-
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true});
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
+  useEffect(() => {
+    const getMediaStream = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setMediaStream(stream);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.muted = true;
+          videoRef.current.play();
+        }
+      } catch (err) {
+        console.error('Error accessing media devices.', err);
       }
+    };
 
+    getMediaStream();
+
+    // Cleanup function to stop the media stream when the component unmounts
+    return () => {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const startRecording = () => {
+    if (mediaStream) {
       const options = { mimeType: 'video/webm; codecs=vp9' };
-      const recorder = new MediaRecorder(stream, options);
+      const recorder = new MediaRecorder(mediaStream, options);
 
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -33,15 +52,12 @@ const VideoUploader: React.FC = () => {
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
-    } catch (err) {
-      console.error('Error accessing media devices.', err);
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
     }
   };
@@ -58,6 +74,7 @@ const VideoUploader: React.FC = () => {
           },
         });
         console.log('Video uploaded successfully:', response.data);
+        setCounter(0);
       } catch (err) {
         console.error('Error uploading video:', err);
       }
@@ -66,8 +83,8 @@ const VideoUploader: React.FC = () => {
 
   const handleMouseDown = () => {
     setIsPressed(true);
-    startRecording();
     setIsCounterVisible(true);
+    startRecording();
     intervalRef.current = setInterval(() => {
       setCounter((prevCounter) => prevCounter + 1);
     }, 100);
@@ -93,24 +110,19 @@ const VideoUploader: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <div className="fixed inset-0 bg-black/90 flex items-center justify-center">
-       <div className="relative w-full h-full">
+    <div className="fixed inset-0 bg-black flex items-center justify-center">
+      <div className="relative w-full h-full">
         <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
-          <span className="w-full h-full object-cover rounded-md bg-muted" />
-          <div className="absolute inset-0 flex items-center justify-center" />
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center">
-            <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
-            <button
-              className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
-              type="button"
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-            >
-              <CircleIcon className="h-8 w-8" />
-            </button>
-
-          </div>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center">
+          <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
+          <button
+            className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
+            type="button"
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+          >
+            <CircleIcon className="h-8 w-8" />
+          </button>
         </div>
       </div>
     </div>
