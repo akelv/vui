@@ -4,34 +4,34 @@ import axios from 'axios';
 
 const VideoUploader: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
-  const [isPressed, setIsPressed] = useState(false);
   const [counter, setCounter] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isCounterVisible, setIsCounterVisible] = useState(false);
-
-  useEffect(() => {
-    const getMediaStream = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: facingMode}, 
-            audio: true });
-        setMediaStream(stream);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.muted = true;
-          videoRef.current.play();
-        }
-      } catch (err) {
-        console.error('Error accessing media devices.', err);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const getMediaStream = async (facingMode: "user" | "environment") => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: facingMode}, 
+          audio: true });
+      setMediaStream(stream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+        videoRef.current.play().catch((error) => {
+          console.error('Error playing video:', error);
+        }); // Ensure video playback on user interaction
       }
-    };
-
-    getMediaStream();
+    } catch (err) {
+      console.error('Error accessing media devices.', err);
+    }
+  };
+  useEffect(() => {
+    getMediaStream(facingMode);
 
     // Cleanup function to stop the media stream when the component unmounts
     return () => {
@@ -39,19 +39,26 @@ const VideoUploader: React.FC = () => {
         mediaStream.getTracks().forEach(track => track.stop());
       }
     };
-  }, []);
+  }, [facingMode]);
 
   const startRecording = () => {
     if (mediaStream) {
+      console.log("Recording started");
       const options = { mimeType: 'video/webm; codecs=vp9' };
       const recorder = new MediaRecorder(mediaStream, options);
 
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          setVideoBlob(event.data);
+            console.log("Saving data");
+            uploadVideo(event.data);
+            console.log("Uploaded data");
+        //   setVideoBlob(event.data);
         }
       };
 
+      recorder.onstop = () => {
+        setIsRecording(false);
+      };
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
@@ -65,19 +72,26 @@ const VideoUploader: React.FC = () => {
     }
   };
 
-  const uploadVideo = async () => {
-    if (videoBlob) {
+  const uploadVideo = async (blob: Blob) => {
+    if (blob) {
+      console.log("Start Uploading")
       const formData = new FormData();
-      formData.append('file', videoBlob, 'recorded-video.webm');
+      formData.append('file', blob, 'recorded-video.webm');
 
       try {
+        setIsUploading(true);
         const response = await axios.post('https://mpnhdm.buildship.run/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
         });
         console.log('Video uploaded successfully:', response.data);
-        setCounter(0);
+        setUploadProgress(null);
+        setIsUploading(false);
       } catch (err) {
         console.error('Error uploading video:', err);
       }
@@ -85,7 +99,6 @@ const VideoUploader: React.FC = () => {
   };
 
   const handleStart = () => {
-    setIsPressed(true);
     setIsCounterVisible(true);
     startRecording();
     intervalRef.current = setInterval(() => {
@@ -94,17 +107,18 @@ const VideoUploader: React.FC = () => {
   };
 
   const handleStop = () => {
-    setIsPressed(false);
     stopRecording();
     setIsCounterVisible(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
+      setCounter(0);
     }
-    uploadVideo();
   };
 
   const toggleCamera = () => {
-    setFacingMode((prevFacingMode) => (prevFacingMode === "user" ? "environment" : "user"));
+    const newFacingMode = facingMode === "user" ? "environment" : "user";
+    setFacingMode(newFacingMode);
+    getMediaStream(newFacingMode);
   };
 
   useEffect(() => {
@@ -115,6 +129,9 @@ const VideoUploader: React.FC = () => {
       }
     };
   }, []);
+
+  const buttonOpacity = uploadProgress !== null ? (100 - uploadProgress) / 100 : 1;
+  const buttonColor = isRecording ? `rgba(255, 0, 0, ${buttonOpacity})` : `rgba(255, 255, 255, ${buttonOpacity * 0.2})`;
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
@@ -132,13 +149,18 @@ const VideoUploader: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
           <button
-            className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
+            className={`${isRecording ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
             type="button"
-            onClick={isPressed ? handleStop: handleStart}
-            onTouchStart={isPressed? handleStop: handleStart}
+            onClick={isRecording ? handleStop : handleStart}
+            onTouchStart={isRecording ? handleStop : handleStart}
+            disabled={isUploading}
+            style={{ backgroundColor: buttonColor }}
           >
             <CircleIcon className="h-8 w-8" />
           </button>
+          {uploadProgress !== null && (
+            <div className="text-white mt-2 z-10">Upload Progress: {uploadProgress}%</div>
+          )}
         </div>
       </div>
     </div>
