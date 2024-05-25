@@ -8,6 +8,7 @@ const VideoUploader: React.FC = () => {
   const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const [isPressed, setIsPressed] = useState(false);
   const [counter, setCounter] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -16,7 +17,9 @@ const VideoUploader: React.FC = () => {
   useEffect(() => {
     const getMediaStream = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: facingMode}, 
+            audio: true });
         setMediaStream(stream);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -100,6 +103,10 @@ const VideoUploader: React.FC = () => {
     uploadVideo();
   };
 
+  const toggleCamera = () => {
+    setFacingMode((prevFacingMode) => (prevFacingMode === "user" ? "environment" : "user"));
+  };
+
   useEffect(() => {
     // Cleanup interval on component unmount
     return () => {
@@ -111,9 +118,17 @@ const VideoUploader: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
+          onClick={toggleCamera}
+        >
+         <SwitchCameraIcon className="h-6 w-6" />
+        </button>
+      </div>
       <div className="relative w-full h-full">
         <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
           <button
             className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
@@ -152,3 +167,25 @@ function CircleIcon(props: IconProps) {
     </svg>
   );
 }
+function SwitchCameraIcon(props: IconProps) {
+    return (
+      <svg
+        {...props}
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
+        <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5" />
+        <circle cx="12" cy="12" r="3" />
+        <path d="m18 22-3-3 3-3" />
+        <path d="m6 2 3 3-3 3" />
+      </svg>
+    )
+  }
