@@ -8,12 +8,12 @@ const VideoUploader: React.FC = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [facingMode, setFacingMode] = useState<"environment" | "user">("user");
   const [counter, setCounter] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isCounterVisible, setIsCounterVisible] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const getMediaStream = async (facingMode: "user" | "environment") => {
+  const getMediaStream = async (facingMode: "environment" | "user") => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: facingMode}, 
