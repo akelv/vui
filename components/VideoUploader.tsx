@@ -122,6 +122,7 @@ const VideoUploader: React.FC = () => {
         <button
           className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
           onClick={toggleCamera}
+          onTouchStart={toggleCamera}
         >
          <SwitchCameraIcon className="h-6 w-6" />
         </button>
@@ -133,10 +134,8 @@ const VideoUploader: React.FC = () => {
           <button
             className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
             type="button"
-            onMouseDown={handleStart}
-            onMouseUp={handleStop}
-            onTouchStart={handleStart}
-            onTouchEnd={handleStop}
+            onClick={isPressed ? handleStop: handleStart}
+            onTouchStart={isPressed? handleStop: handleStart}
           >
             <CircleIcon className="h-8 w-8" />
           </button>
