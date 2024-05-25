@@ -81,7 +81,7 @@ const VideoUploader: React.FC = () => {
     }
   };
 
-  const handleMouseDown = () => {
+  const handleStart = () => {
     setIsPressed(true);
     setIsCounterVisible(true);
     startRecording();
@@ -90,7 +90,7 @@ const VideoUploader: React.FC = () => {
     }, 100);
   };
 
-  const handleMouseUp = () => {
+  const handleStop = () => {
     setIsPressed(false);
     stopRecording();
     setIsCounterVisible(false);
@@ -118,8 +118,10 @@ const VideoUploader: React.FC = () => {
           <button
             className={`${isPressed ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-white-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
             type="button"
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
+            onMouseDown={handleStart}
+            onMouseUp={handleStop}
+            onTouchStart={handleStart}
+            onTouchEnd={handleStop}
           >
             <CircleIcon className="h-8 w-8" />
           </button>
