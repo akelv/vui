@@ -127,7 +127,7 @@ const VideoUploader: React.FC = () => {
         </button>
       </div>
       <div className="relative w-full h-full">
-        <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
+        <video playsInline muted autoPlay ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
           <button
