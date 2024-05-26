@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-
+import { Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 const VideoUploader: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -146,6 +147,12 @@ const VideoUploader: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
+        <div className="absolute top-4 left-4 z-10">
+          <Avatar className="h-16 w-16 bg-gray-900 text-gray-50">
+            <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
+            <AvatarFallback>KV</AvatarFallback>
+          </Avatar>
+        </div>
       <div className="absolute top-4 right-4 z-10">
         <button
           className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
@@ -159,7 +166,7 @@ const VideoUploader: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
           <button
-            className={`${isRecording ? 'bg-red-500' : 'bg-white/20'} disabled:bg-white-200/10 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
+            className={`${isRecording ? 'bg-red-500' : 'bg-white/20'} disabled:bg-white/5 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
             type="button"
             onClick={toggleRecording}
             disabled={isUploading}
@@ -170,51 +177,28 @@ const VideoUploader: React.FC = () => {
             <div className="text-white mt-2 z-10">Upload Progress: {uploadProgress}%</div>
           )}
         </div>
+        {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex justify-between z-10"> */}
+        <div className="absolute bottom-0 left-4 mb-4 z-10">
+        <button
+            className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
+            type='button'
+          >
+            <Grid3x3Icon className="h-6 w-6" />
+            <span className="sr-only">Go to product listing</span>
+          </button>
+        </div>
+        <div className="absolute bottom-0 right-4 mb-4 z-10">
+        <button
+            className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
+            type='button'
+          >
+            <StoreIcon className="h-6 w-6" />
+            <span className="sr-only">Go to store room</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default VideoUploader;
-
-interface IconProps extends React.SVGProps<SVGSVGElement> {}
-function CircleIcon(props: IconProps) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-    </svg>
-  );
-}
-function SwitchCameraIcon(props: IconProps) {
-    return (
-      <svg
-        {...props}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
-        <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5" />
-        <circle cx="12" cy="12" r="3" />
-        <path d="m18 22-3-3 3-3" />
-        <path d="m6 2 3 3-3 3" />
-      </svg>
-    )
-  }
