@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 const VideoUploader: React.FC = () => {
+  const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
@@ -38,11 +39,16 @@ const VideoUploader: React.FC = () => {
 
     // Cleanup function to stop the media stream when the component unmounts
     return () => {
-      if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-      }
+        stopMediaStream();
     };
   }, [facingMode]);
+
+  const stopMediaStream = () => {
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+    }
+  };
 
   const startRecording = () => {
     if (mediaStream) {
@@ -147,21 +153,29 @@ const VideoUploader: React.FC = () => {
   }, []);
 
   const navigateToStoreRoom = () => {
-    // navigate("/store-room");
+    stopMediaStream();
+    router.push('/storeroom');
   };
 
   const navigateToProductList = () => {
-    // navigate("/product-list");
+    stopMediaStream();
+    router.push('/productlist');
   };
 
   const navigateToSettings = () => {
-    // navigate("/settings");
+    stopMediaStream();
+    router.push('/settings');
   };
+
+  const navigateToHome = () => {
+    stopMediaStream();
+    router.push('/');
+  }
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
             <div className="absolute top-4 left-4 z-10">
-          <button onClick={navigateToSettings}>
+          <button onClick={navigateToSettings} hidden={isRecording} >
           <Avatar className="h-16 w-16 bg-gray-900 text-gray-50">
             <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
             <AvatarFallback>KV</AvatarFallback>
@@ -187,17 +201,22 @@ const VideoUploader: React.FC = () => {
             onClick={toggleRecording}
             disabled={isUploading}
           >
-            <CircleIcon className="h-8 w-8" />
+            {!isUploading && (
+                 <CircleIcon className="h-8 w-8" />
+            )}
+            {uploadProgress !== null && (
+                 <div className="text-white mt-2 z-10">{uploadProgress}%</div>
+            )}
           </button>
-          {uploadProgress !== null && (
-            <div className="text-white mt-2 z-10">Upload Progress: {uploadProgress}%</div>
-          )}
+
         </div>
         {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex justify-between z-10"> */}
         <div className="absolute bottom-0 left-4 mb-4 z-10">
         <button
             className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
             type='button'
+            onClick={navigateToProductList}
+            hidden={isRecording} 
           >
             <Grid3x3Icon className="h-6 w-6" />
             <span className="sr-only">Go to product listing</span>
@@ -207,6 +226,8 @@ const VideoUploader: React.FC = () => {
         <button
             className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
             type='button'
+            onClick={navigateToStoreRoom}
+            hidden={isRecording} 
           >
             <StoreIcon className="h-6 w-6" />
             <span className="sr-only">Go to store room</span>

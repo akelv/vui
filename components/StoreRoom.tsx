@@ -1,22 +1,29 @@
 "use client";
 import React from 'react';
-import { Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
+import { useRouter } from 'next/navigation';
+import { Grid3x3Icon, CameraIcon, StoreIcon } from './ui/controls';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const StoreRoom: React.FC = () => {
-
-  const navigateToStoreRoom = () => {
-  };
-
-  const navigateToProductList = () => {
-  };
-
-  const navigateToSettings = () => {
-  };
-
+    const router = useRouter();
+    const navigateToStoreRoom = () => {
+      router.push('/storeroom');
+    };
+  
+    const navigateToProductList = () => {
+      router.push('/productlist');
+    };
+  
+    const navigateToSettings = () => {
+      router.push('/settings');
+    };
+  
+    const navigateToHome = () => {
+      router.push('/');
+    }
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 left-4 z-10">
         <button
           onClick={navigateToSettings}
         >
@@ -32,9 +39,9 @@ const StoreRoom: React.FC = () => {
           <button
             className="bg-white/20 disabled:bg-white/5 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
             type="button"
-            onClick={navigateToSettings}
+            onClick={navigateToHome}
           >
-            <CircleIcon className="h-8 w-8" />
+            <CameraIcon className="h-8 w-8" />
           </button>
         </div>
         <div className="absolute bottom-0 left-4 mb-4 z-10">
