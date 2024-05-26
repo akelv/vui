@@ -8,7 +8,7 @@ const VideoUploader: React.FC = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-  const [facingMode, setFacingMode] = useState<"environment" | "user">("user");
+  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [counter, setCounter] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isCounterVisible, setIsCounterVisible] = useState(false);
@@ -18,6 +18,7 @@ const VideoUploader: React.FC = () => {
       const stream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: facingMode}, 
           audio: true });
+        console.log(facingMode)
       setMediaStream(stream);
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
