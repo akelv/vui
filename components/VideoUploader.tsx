@@ -101,6 +101,9 @@ const VideoUploader: React.FC = () => {
     }
   };
 
+  const toggleRecording = () => {
+    isRecording? handleStop() : handleStart();
+  }
   const handleStart = () => {
     setIsCounterVisible(true);
     startRecording();
@@ -121,7 +124,6 @@ const VideoUploader: React.FC = () => {
   const toggleCamera = () => {
     const newFacingMode = facingMode === "user" ? "environment" : "user";
     setFacingMode(newFacingMode);
-    getMediaStream(newFacingMode);
   };
 
   useEffect(() => {
@@ -133,16 +135,12 @@ const VideoUploader: React.FC = () => {
     };
   }, []);
 
-  const buttonOpacity = uploadProgress !== null ? (100 - uploadProgress) / 100 : 1;
-  const buttonColor = isRecording ? `rgba(255, 0, 0, ${buttonOpacity})` : `rgba(255, 255, 255, ${buttonOpacity * 0.2})`;
-
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
       <div className="absolute top-4 right-4 z-10">
         <button
           className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
           onClick={toggleCamera}
-          onTouchStart={toggleCamera}
         >
          <SwitchCameraIcon className="h-6 w-6" />
         </button>
@@ -152,12 +150,10 @@ const VideoUploader: React.FC = () => {
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div id='counter' className={`${isCounterVisible ? '' : 'hidden'} text-white mb-2 text-center`}>{counter/10}s</div>
           <button
-            className={`${isRecording ? 'bg-red-500' : 'bg-white/20'} backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
+            className={`${isRecording ? 'bg-red-500' : 'bg-white/20'} disabled:bg-white-200/10 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors`}
             type="button"
-            onClick={isRecording ? handleStop : handleStart}
-            onTouchStart={isRecording ? handleStop : handleStart}
+            onClick={toggleRecording}
             disabled={isUploading}
-            style={{ backgroundColor: buttonColor }}
           >
             <CircleIcon className="h-8 w-8" />
           </button>
