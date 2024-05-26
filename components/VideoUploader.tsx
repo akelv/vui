@@ -45,7 +45,16 @@ const VideoUploader: React.FC = () => {
   const startRecording = () => {
     if (mediaStream) {
       console.log("Recording started");
-      const options = { mimeType: 'video/webm; codecs=vp9' };
+      let options = { mimeType: 'video/webm; codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm; codecs=vp8' };
+      }
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+      }
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: '' }; // Let the browser decide
+      }
       const recorder = new MediaRecorder(mediaStream, options);
 
       recorder.ondataavailable = (event) => {
