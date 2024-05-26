@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
+
 import axios from 'axios';
 import { Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -145,18 +146,33 @@ const VideoUploader: React.FC = () => {
     };
   }, []);
 
+  const navigateToStoreRoom = () => {
+    // navigate("/store-room");
+  };
+
+  const navigateToProductList = () => {
+    // navigate("/product-list");
+  };
+
+  const navigateToSettings = () => {
+    // navigate("/settings");
+  };
+
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
-        <div className="absolute top-4 left-4 z-10">
+            <div className="absolute top-4 left-4 z-10">
+          <button onClick={navigateToSettings}>
           <Avatar className="h-16 w-16 bg-gray-900 text-gray-50">
             <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
             <AvatarFallback>KV</AvatarFallback>
           </Avatar>
+          </button>
         </div>
       <div className="absolute top-4 right-4 z-10">
         <button
           className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
           onClick={toggleCamera}
+          hidden={isRecording}
         >
          <SwitchCameraIcon className="h-6 w-6" />
         </button>
