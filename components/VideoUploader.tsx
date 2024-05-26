@@ -38,8 +38,19 @@ const VideoUploader: React.FC = () => {
     getMediaStream(facingMode);
 
     // Cleanup function to stop the media stream when the component unmounts
+    const handleVisibilityChange = () => {
+        if (document.hidden) {
+            console.log("stop stream");
+          stopMediaStream();
+          if (isRecording) {
+            stopRecording();
+          }
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
         stopMediaStream();
+        document.addEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [facingMode]);
 
