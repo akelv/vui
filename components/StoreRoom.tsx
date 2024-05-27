@@ -45,24 +45,22 @@ const StoreRoom: React.FC = () => {
         </button>
       </div>
       <div className="relative w-full h-full flex flex-col items-center justify-center">
+        <div className="bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
+            {data && (
+              <>
+                {data.data.map((product: any, index: number) => (
+                  <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
+                    <h2 className="font-bold">{product['product-name']}</h2>
+                    <p>Description:{product.description}</p>
+                    <p>Price: {product.price}</p>
+                  </div>
+                ))}
+              </>
+            )}
+        </div>
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
-          <div className="text-white mb-2 text-center">Welcome to the Store Room</div>
           <div className="relative w-full h-full flex flex-col items-center justify-center"></div>
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
-              {data && (
-                <>
-                  <video src={data.url} controls className="mb-4 w-full max-w-md" />
-                  {data.data.map((product: any, index: number) => (
-                    <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
-                      <h2 className="font-bold">{product['product-name']}</h2>
-                      <p>{product.description}</p>
-                      <p>{product.price}</p>
-                      <p>{product.translation}</p>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
+ 
           <button
             className="bg-white/20 disabled:bg-white/5 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
             type="button"
