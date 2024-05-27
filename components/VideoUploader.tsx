@@ -121,6 +121,8 @@ const VideoUploader: React.FC = () => {
           }
         });
         console.log('Video uploaded successfully:', response.data);
+        // Save response data to local storage
+        localStorage.setItem('uploadResponse', JSON.stringify(response.data));
         setUploadProgress(null);
         setIsUploading(false);
       } catch (err) {
