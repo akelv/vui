@@ -22,6 +22,7 @@ const VideoUploader: React.FC = () => {
   const [isCounterVisible, setIsCounterVisible] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [items, setItems] = useState(0);
+  const [resp, setResp] = useState("");
   const getMediaStream = async (facingMode: "environment" | "user") => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -154,6 +155,9 @@ const VideoUploader: React.FC = () => {
         setIsUploading(false);
       } catch (err) {
         console.error('Error uploading video:', err);
+        setIsUploading(false);
+        setUploadProgress(null);
+        setResp("Service Unavailable");
       }
     }
   };
@@ -214,14 +218,15 @@ const VideoUploader: React.FC = () => {
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center">
-            <div className="absolute top-4 left-4 z-10">
+      <div className="absolute top-4 left-4 z-10">
           <button onClick={navigateToSettings} hidden={isRecording} >
           <Avatar className="h-16 w-16 bg-gray-900 text-gray-50">
             <AvatarImage alt="@shadcn" src="/placeholder-avatar.jpg" />
             <AvatarFallback>KV</AvatarFallback>
           </Avatar>
           </button>
-        </div>
+      </div>
+
       <div className="absolute top-4 right-4 z-10">
         <button
           className="bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
@@ -231,6 +236,7 @@ const VideoUploader: React.FC = () => {
          <SwitchCameraIcon className="h-6 w-6" />
         </button>
       </div>
+
       <div className="relative w-full h-full">
         <video playsInline muted autoPlay ref={videoRef} className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
@@ -254,6 +260,13 @@ const VideoUploader: React.FC = () => {
                   <Progress className="bg-white/20 rounded-full h-1 [&>div]:bg-[#ffd700]" value={uploadProgress}/>
                 </div>
           )}
+          <div className='absolute bottom-20 center z-10'>
+            {!isRecording && !isUploading && (<p className="text-white text-sm bg-white/20 p-1 rounded">Snap a few seconds video and say how much you sell</p> )} 
+            {isUploading && uploadProgress !== null && uploadProgress != 100 &&(<p className="text-white text-sm bg-white/20 p-1 rounded">Uploading video</p> )}
+            {isUploading && uploadProgress == null &&(<p className="text-white text-sm bg-white/20 p-1 rounded">Compressing video</p> )} 
+            {isUploading && uploadProgress == 100 &&(<p className="text-white text-sm bg-white/20 p-1 rounded">Itemize and prepare listing</p> )}
+            {resp != "" &&(<p className="text-white text-sm bg-white/20 p-1 rounded">{resp}</p>)}
+          </div>
         </div>
         {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex justify-between z-10"> */}
         <div className="absolute bottom-0 left-4 mb-4 z-10">
