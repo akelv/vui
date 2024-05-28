@@ -49,7 +49,6 @@ const StoreRoom: React.FC = () => {
             {data && (
               <>
               <video controls className="mb-4 w-full max-w-md"> <source src={data.url} type="video/webm" /> </video>
-              <p>Total {data.data.length} items: </p>
                 {data.data.map((product: any, index: number) => (
                   <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
                     <h2 className="font-bold">{product['product-name']}</h2>
