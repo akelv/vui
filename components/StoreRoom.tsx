@@ -45,7 +45,7 @@ const StoreRoom: React.FC = () => {
         </button>
       </div>
       <div className="relative w-full h-full flex flex-col items-center justify-center">
-        <div className="bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
+        <div className="absolute bg-gradient-to-t from-black/50 overflow-y-auto to-transparent p-4 flex flex-col items-center justify-center z-10">
             {data && (
               <>
                 {data.data.map((product: any, index: number) => (
@@ -59,7 +59,8 @@ const StoreRoom: React.FC = () => {
             )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
-          <div className="relative w-full h-full flex flex-col items-center justify-center"></div>
+          <div className="relative w-full h-full flex flex-col items-center justify-center">
+          </div>
  
           <button
             className="bg-white/20 disabled:bg-white/5 backdrop-blur-sm rounded-full p-4 text-white hover:bg-red-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
