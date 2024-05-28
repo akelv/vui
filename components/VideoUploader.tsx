@@ -1,7 +1,7 @@
 "use client";
-import { FFmpeg } from '@ffmpeg/ffmpeg';
+import useFFmpeg from './hooks/useFFmpeg';
+// import {FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile} from '@ffmpeg/util';
-const ffmpeg = new FFmpeg();
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import { LoaderPinwheelIcon , Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIc
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Progress } from './ui/progress';
 const VideoUploader: React.FC = () => {
+  const ffmpeg = useFFmpeg();
   const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -110,8 +111,8 @@ const VideoUploader: React.FC = () => {
   };
 
   const compressVideo = async (videoBlob: Blob): Promise<Blob> => {
-    if (!ffmpeg.loaded) {
-      await ffmpeg.load();
+    if (!ffmpeg) {
+      throw new Error("FFmpeg is not loaded yet");
     }
 
     const inputName = 'input.webm';
