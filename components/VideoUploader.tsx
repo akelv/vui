@@ -16,6 +16,7 @@ const VideoUploader: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isCounterVisible, setIsCounterVisible] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [items, setItems] = useState(0);
   const getMediaStream = async (facingMode: "environment" | "user") => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -122,6 +123,7 @@ const VideoUploader: React.FC = () => {
         });
         console.log('Video uploaded successfully:', response.data);
         // Save response data to local storage
+        setItems(response.data.data.length);
         localStorage.setItem('uploadResponse', JSON.stringify(response.data));
         setUploadProgress(null);
         setIsUploading(false);
@@ -243,6 +245,11 @@ const VideoUploader: React.FC = () => {
             hidden={isRecording} 
           >
             <StoreIcon className="h-6 w-6" />
+           {items > 0 && (
+               <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs font-medium">
+                  items
+             </div>
+           )}
             <span className="sr-only">Go to store room</span>
           </button>
         </div>
