@@ -46,6 +46,7 @@ const StoreRoom: React.FC = () => {
       </div>
       <div className="relative w-full h-full flex flex-col items-center justify-center">
         <div className="absolute bg-gradient-to-t from-black/50 overflow-y-auto to-transparent p-4 flex flex-col items-center justify-center z-10">
+          <video controls className="mb-4 w-full max-w-md"> <source src={data.url} type="video/webm" /> </video>
             {data && (
               <>
                 {data.data.map((product: any, index: number) => (
