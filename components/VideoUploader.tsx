@@ -1,9 +1,13 @@
 "use client";
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile} from '@ffmpeg/util';
+const ffmpeg = new FFmpeg();
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
+import { LoaderPinwheelIcon , Grid3x3Icon, SwitchCameraIcon, CircleIcon, StoreIcon } from './ui/controls';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Progress } from './ui/progress';
 const VideoUploader: React.FC = () => {
   const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
@@ -77,10 +81,13 @@ const VideoUploader: React.FC = () => {
       }
       const recorder = new MediaRecorder(mediaStream, options);
 
-      recorder.ondataavailable = (event) => {
+      recorder.ondataavailable = async (event) => {
         if (event.data.size > 0) {
             console.log("Saving data");
-            uploadVideo(event.data);
+            setIsUploading(true);
+            const compressedBlob = await compressVideo(event.data);
+            uploadVideo(compressedBlob);
+            // uploadVideo(event.data);
             console.log("Uploaded data");
         //   setVideoBlob(event.data);
         }
@@ -102,14 +109,31 @@ const VideoUploader: React.FC = () => {
     }
   };
 
+  const compressVideo = async (videoBlob: Blob): Promise<Blob> => {
+    if (!ffmpeg.loaded) {
+      await ffmpeg.load();
+    }
+
+    const inputName = 'input.webm';
+    const outputName = 'output.mp4';
+    const inputData = await fetchFile(videoBlob);
+
+    ffmpeg.writeFile(inputName, inputData);
+
+    await ffmpeg.exec(['-i', inputName, '-vcodec', 'libx264', '-crf', '28', outputName]);
+
+    const outputData = ffmpeg.readFile(outputName);
+    const compressedBlob = new Blob([(await outputData).valueOf()], { type: 'video/mp4' });
+
+    return compressedBlob;
+  };
   const uploadVideo = async (blob: Blob) => {
     if (blob) {
       console.log("Start Uploading")
       const formData = new FormData();
-      formData.append('file', blob, 'recorded-video.webm');
+      formData.append('file', blob, 'recorded-video.mp4');
 
       try {
-        setIsUploading(true);
         const response = await axios.post('https://mpnhdm.buildship.run/upload', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -219,11 +243,16 @@ const VideoUploader: React.FC = () => {
             {!isUploading && (
                  <CircleIcon className="h-8 w-8" />
             )}
-            {uploadProgress !== null && (
-                 <div className="text-white mt-2 z-10">{uploadProgress}%</div>
-            )}
+            {isUploading && (
+              <LoaderPinwheelIcon className="h-12 w-12 animate-spin text-white" />
+            )
+            }
           </button>
-
+          {uploadProgress !== null && (
+                <div className="absolute bottom-0 mt-2 w-full z-10">
+                  <Progress className="bg-white/20 rounded-full h-1 [&>div]:bg-[#ffd700]" value={uploadProgress}/>
+                </div>
+          )}
         </div>
         {/* <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex justify-between z-10"> */}
         <div className="absolute bottom-0 left-4 mb-4 z-10">
@@ -247,7 +276,7 @@ const VideoUploader: React.FC = () => {
             <StoreIcon className="h-6 w-6" />
            {items > 0 && (
                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs font-medium">
-                  items
+                  {items}
              </div>
            )}
             <span className="sr-only">Go to store room</span>
