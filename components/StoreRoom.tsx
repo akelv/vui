@@ -44,7 +44,7 @@ const StoreRoom: React.FC = () => {
           </Avatar>
         </button>
       </div>
-      <div className="relative w-full h-full flex flex-col items-center justify-center">
+      <div className="relative w-full h-full flex flex-col items-center justify-center overflow-y-auto">
         <div className="absolute bg-gradient-to-t from-black/50 overflow-y-auto to-transparent p-4 flex flex-col items-center justify-center z-10">
             {data && (
               <>
@@ -59,7 +59,9 @@ const StoreRoom: React.FC = () => {
               </>
             )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-4 flex flex-col items-center justify-center z-10">
           <div className="relative w-full h-full flex flex-col items-center justify-center">
           </div>
  
@@ -91,7 +93,6 @@ const StoreRoom: React.FC = () => {
             <span className="sr-only">Go to store room</span>
           </button>
         </div>
-      </div>
     </div>
   );
 };
