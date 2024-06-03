@@ -69,7 +69,10 @@ const StoreRoom: React.FC = () => {
                 {data.data.map((product: any, index: number) => (
                   <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
                      <h2 className="font-bold mb-2">{product['product-name']}</h2>
-                          <button className="mb-1 font-thin text-white" onClick={() => seekTime(product['start-time'])}> -- Start from: {product['start-time']} to {product['end-time']} -- </button>
+                          <button 
+                          className="bg-white/5 backdrop-blur-sm rounded-full p-1 text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
+                          type='button'
+                          onClick={() => seekTime(product['start-time'])}> - start from: {product['start-time']} to {product['end-time']} - </button>
                         <div>
                           <p className="mb-1 font-thin">Description: {product.description}</p>
                           <p>Price: {product.price}</p>
