@@ -20,23 +20,27 @@ const StoreRoom: React.FC = () => {
   
     const generateThumbnail = (videoUrl: string, timestamp: number, index: number) => {
       const video = videoRef.current;
+      console.log("Start generate");
       if (video) {
+        console.log("Video found");
         video.src = videoUrl;
         video.currentTime = timestamp;
+        console.log("Thumbs at timestamp", timestamp);
         video.addEventListener('seeked', function seekHandler() {
           const canvas = document.createElement('canvas');
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           const ctx = canvas.getContext('2d');
+          console.log("Seeked finish");
           if (ctx) {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             const thumbnail = canvas.toDataURL('image/png');
             setThumbnails(prev => {
               const newThumbnails = [...prev];
               newThumbnails[index] = thumbnail;
-              console.log("Added a thumbnail");
               return newThumbnails;
             });
+            console.log("Added a thumbnail");
           }
           video.removeEventListener('seeked', seekHandler);
         }, { once: true });
@@ -48,6 +52,7 @@ const StoreRoom: React.FC = () => {
         console.log(data);
         data.data.forEach((product: any, index: number) => {
           if (product.images && product.images.length > 0) {
+            console.log("Images found for", index, product.images);
             generateThumbnail(data.url, product.images[0], index);
           }
         });
