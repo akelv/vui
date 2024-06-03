@@ -24,7 +24,6 @@ const StoreRoom: React.FC = () => {
       if (video) {
         console.log("Video found");
         video.src = videoUrl;
-        video.currentTime = timestamp;
         console.log("Thumbs at timestamp", timestamp);
         video.addEventListener('seeked', function seekHandler() {
           const canvas = document.createElement('canvas');
@@ -44,6 +43,7 @@ const StoreRoom: React.FC = () => {
           }
           video.removeEventListener('seeked', seekHandler);
         }, { once: true });
+        video.currentTime = timestamp;
       }
     };
 
