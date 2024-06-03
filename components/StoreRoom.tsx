@@ -47,7 +47,6 @@ const StoreRoom: React.FC = () => {
               });
               console.log("Added a thumbnail");
             }
-            video.removeEventListener('seeked', seekHandler);
           }, { once: true });
         };
       }
