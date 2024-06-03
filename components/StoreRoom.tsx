@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 import { Grid3x3Icon, CameraIcon, StoreIcon } from './ui/controls';
@@ -7,15 +7,50 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const StoreRoom: React.FC = () => {
     const router = useRouter();
-  
     const [data, setData] = useState<any>(null);
-
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [thumbnails, setThumbnails] = useState<string[]>([]);
+ 
     useEffect(() => {
       const uploadResponse = localStorage.getItem('uploadResponse');
       if (uploadResponse) {
         setData(JSON.parse(uploadResponse));
       }
     }, []);
+  
+    const generateThumbnail = (videoUrl: string, timestamp: number, index: number) => {
+      const video = videoRef.current;
+      if (video) {
+        video.src = videoUrl;
+        video.currentTime = timestamp;
+        video.addEventListener('seeked', function seekHandler() {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const thumbnail = canvas.toDataURL('image/png');
+            setThumbnails(prev => {
+              const newThumbnails = [...prev];
+              newThumbnails[index] = thumbnail;
+              return newThumbnails;
+            });
+          }
+          video.removeEventListener('seeked', seekHandler);
+        }, { once: true });
+      }
+    };
+
+    useEffect(() => {
+      if (data && data.url && videoRef.current) {
+        data.data.forEach((product: any, index: number) => {
+          if (product.images && product.images.length > 0) {
+            generateThumbnail(data.url, product.images[0], index);
+          }
+        });
+      }
+    }, [data]);
 
     const navigateToStoreRoom = () => {
       router.push('/storeroom');
@@ -48,12 +83,25 @@ const StoreRoom: React.FC = () => {
         <div className="absolute bg-gradient-to-t from-black/50 overflow-y-auto to-transparent p-4 flex flex-col items-center justify-center z-10">
             {data && (
               <>
-              <video controls  className="mb-4 w-full max-w-md" playsInline> <source src={data.url} type="video/mp4" /> </video>
+              <video controls className="mb-4 w-full max-w-md" playsInline> 
+              <source src={data.url} type="video/mp4" /> 
+              </video>
                 {data.data.map((product: any, index: number) => (
                   <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
-                    <h2 className="font-bold">{product['product-name']}</h2>
-                    <p>Description:{product.description}</p>
-                    <p>Price: {product.price}</p>
+                     <h2 className="font-bold mb-2">{product['product-name']}</h2>
+                      <div className="flex items-center">
+                        {thumbnails[index] && (
+                          <img
+                            src={thumbnails[index]}
+                            alt={`Thumbnail for ${product['product-name']}`}
+                            className="w-24 h-24 object-cover mr-4"
+                          />
+                        )}
+                        <div>
+                          <p className="mb-1">Description: {product.description}</p>
+                          <p>Price: {product.price}</p>
+                        </div>
+                      </div>
                   </div>
                 ))}
               </>
