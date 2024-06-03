@@ -17,52 +17,20 @@ const StoreRoom: React.FC = () => {
         setData(JSON.parse(uploadResponse));
       }
     }, []);
-  
-    const generateThumbnail = (videoUrl: string, timestamp: number, index: number) => {
-      const video = videoRef.current;
-      console.log("Start generate");
-      if (video) {
-        console.log("Video found");
-        video.src = videoUrl;
-        console.log("Thumbs at timestamp", timestamp);
-        video.onloadedmetadata = () => {
-          console.log("Metadata loaded");
-          setTimeout(() => {
-            video.currentTime = timestamp;
-          }, 200); // Delay to ensure video is ready for seeking
-
-          video.addEventListener('seeked', function seekHandler() {
-            console.log("Seeked finish");
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              const thumbnail = canvas.toDataURL('image/png');
-              setThumbnails(prev => {
-                const newThumbnails = [...prev];
-                newThumbnails[index] = thumbnail;
-                return newThumbnails;
-              });
-              console.log("Added a thumbnail");
-            }
-          }, { once: true });
-        };
-      }
+    
+    const convertTimestampToSeconds = (timestamp: string): number => {
+      const [minutes, seconds] = timestamp.split(':').map(Number);
+      return (minutes * 60) + seconds;
     };
 
-    useEffect(() => {
-      if (data && data.url && videoRef.current) {
-        console.log(data);
-        data.data.forEach((product: any, index: number) => {
-          if (product.images && product.images.length > 0) {
-            console.log("Images found for", index, product.images);
-            generateThumbnail(data.url, product.images[0], index);
-          }
-        });
+    const seekTime = (timestamp: string) => {
+      const video = videoRef.current;
+      console.log("Seek to new time", timestamp);
+      if (video) {
+        const timeInSeconds = convertTimestampToSeconds(timestamp);
+        video.currentTime = timeInSeconds;
       }
-    }, [data]);
+    };
 
     const navigateToStoreRoom = () => {
       router.push('/storeroom');
@@ -101,19 +69,11 @@ const StoreRoom: React.FC = () => {
                 {data.data.map((product: any, index: number) => (
                   <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
                      <h2 className="font-bold mb-2">{product['product-name']}</h2>
-                      <div className="flex items-center">
-                        {thumbnails[index] && (
-                          <img
-                            src={thumbnails[index]}
-                            alt={`Thumbnail for ${product['product-name']}`}
-                            className="w-24 h-24 object-cover mr-4"
-                          />
-                        )}
+                          <button className="mb-1 font-thin text-white" onClick={() => seekTime(product['start-time'])}> -- Start from: {product['start-time']} to {product['end-time']} -- </button>
                         <div>
-                          <p className="mb-1">Description: {product.description}</p>
+                          <p className="mb-1 font-thin">Description: {product.description}</p>
                           <p>Price: {product.price}</p>
-                        </div>
-                      </div>
+                        </div> 
                   </div>
                 ))}
               </>
