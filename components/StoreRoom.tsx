@@ -25,25 +25,31 @@ const StoreRoom: React.FC = () => {
         console.log("Video found");
         video.src = videoUrl;
         console.log("Thumbs at timestamp", timestamp);
-        video.addEventListener('seeked', function seekHandler() {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d');
-          console.log("Seeked finish");
-          if (ctx) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumbnail = canvas.toDataURL('image/png');
-            setThumbnails(prev => {
-              const newThumbnails = [...prev];
-              newThumbnails[index] = thumbnail;
-              return newThumbnails;
-            });
-            console.log("Added a thumbnail");
-          }
-          video.removeEventListener('seeked', seekHandler);
-        }, { once: true });
-        video.currentTime = timestamp;
+        video.onloadedmetadata = () => {
+          console.log("Metadata loaded");
+          setTimeout(() => {
+            video.currentTime = timestamp;
+          }, 200); // Delay to ensure video is ready for seeking
+
+          video.addEventListener('seeked', function seekHandler() {
+            console.log("Seeked finish");
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const thumbnail = canvas.toDataURL('image/png');
+              setThumbnails(prev => {
+                const newThumbnails = [...prev];
+                newThumbnails[index] = thumbnail;
+                return newThumbnails;
+              });
+              console.log("Added a thumbnail");
+            }
+            video.removeEventListener('seeked', seekHandler);
+          }, { once: true });
+        };
       }
     };
 
