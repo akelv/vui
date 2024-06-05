@@ -100,6 +100,8 @@ const StoreRoom: React.FC = () => {
                         <div>
                           <p className="mb-1">Description: {product.description}</p>
                           <p>Price: {product.price}</p>
+                          <p>Category name: {product['category-name']}</p>
+                          <p>Category id: {product['category-id']}</p>
                         </div>
                       </div>
                   </div>
