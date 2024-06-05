@@ -17,40 +17,20 @@ const StoreRoom: React.FC = () => {
         setData(JSON.parse(uploadResponse));
       }
     }, []);
-  
-    const generateThumbnail = (videoUrl: string, timestamp: number, index: number) => {
-      const video = videoRef.current;
-      if (video) {
-        video.src = videoUrl;
-        video.currentTime = timestamp;
-        video.addEventListener('seeked', function seekHandler() {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const thumbnail = canvas.toDataURL('image/png');
-            setThumbnails(prev => {
-              const newThumbnails = [...prev];
-              newThumbnails[index] = thumbnail;
-              return newThumbnails;
-            });
-          }
-          video.removeEventListener('seeked', seekHandler);
-        }, { once: true });
-      }
+    
+    const convertTimestampToSeconds = (timestamp: string): number => {
+      const [minutes, seconds] = timestamp.split(':').map(Number);
+      return (minutes * 60) + seconds;
     };
 
-    useEffect(() => {
-      if (data && data.url && videoRef.current) {
-        data.data.forEach((product: any, index: number) => {
-          if (product.images && product.images.length > 0) {
-            generateThumbnail(data.url, product.images[0], index);
-          }
-        });
+    const seekTime = (timestamp: string) => {
+      const video = videoRef.current;
+      console.log("Seek to new time", timestamp);
+      if (video) {
+        const timeInSeconds = convertTimestampToSeconds(timestamp);
+        video.currentTime = timeInSeconds;
       }
-    }, [data]);
+    };
 
     const navigateToStoreRoom = () => {
       router.push('/storeroom');
@@ -83,28 +63,23 @@ const StoreRoom: React.FC = () => {
         <div className="absolute bg-gradient-to-t from-black/50 overflow-y-auto to-transparent p-4 flex flex-col items-center justify-center z-10">
             {data && (
               <>
-              <video ref={videoRef} controls className="mb-4 w-full max-w-md" playsInline> 
+             <video ref={videoRef} controls className="mb-4 w-full max-w-md" playsInline> 
               <source src={data.url} type="video/mp4" /> 
               </video>
                 {data.data.map((product: any, index: number) => (
                   <div key={index} className="bg-white/20 backdrop-blur-sm rounded-lg p-4 mb-2 text-white w-full max-w-md">
                      <h2 className="font-bold mb-2">{product['product-name']}</h2>
-                      <div className="flex items-center">
-                        {thumbnails[index] && (
-                          <img
-                            src={thumbnails[index]}
-                            alt={`Thumbnail for ${product['product-name']}`}
-                            className="w-24 h-24 object-cover mr-4"
-                          />
-                        )}
+                          <button 
+                          className="bg-white/5 backdrop-blur-sm rounded-full p-1 text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 transition-colors"
+                          type='button'
+                          onClick={() => seekTime(product['start-time'])}> - start from: {product['start-time']} to {product['end-time']} - </button>
                         <div>
-                          <p className="mb-1">Description: {product.description}</p>
+                          <p className="mb-1 font-thin">Description: {product.description}</p>
                           <p>Price: {product.price}</p>
                           <p>Category name: {product['category-name']}</p>
                           <p>Category id: {product['category-id']}</p>
                         </div>
                       </div>
-                  </div>
                 ))}
               </>
             )}
